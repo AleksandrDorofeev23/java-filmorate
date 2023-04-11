@@ -47,7 +47,7 @@ public class UserController {
         if (user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
-        if(users.containsKey(user.getId())) {
+        if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
         } else {
             throw new ValidationException("Такого пользователя нет");
