@@ -31,6 +31,15 @@ public class FilmController {
         if (film.getReleaseDate().isBefore(filmsBirthDay)) {
             throw new ValidationException("Неверная дата фильма");
         }
+        if (film.getDuration() < 0) {
+            throw new ValidationException("Длительность фильма не может быть отрицательной");
+        }
+        if (film.getName().isEmpty()) {
+            throw new ValidationException("Название не может быть пустым");
+        }
+        if (film.getDescription().length() > 200) {
+            throw new ValidationException("Описание не может превышать 200 символов");
+        }
         film.setId(++filmId);
         films.put(film.getId(), film);
         return film;
