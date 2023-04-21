@@ -51,7 +51,7 @@ public class FilmService {
         List<Film> films1 = new ArrayList<>();
         films1.addAll(films);
         Comparator<Film> comparator = Comparator.comparingInt(o -> o.getLikes().size());
-        Collections.sort(films1, comparator);
+        Collections.sort(films1, comparator.reversed());
         if (count >= films.size()) {
             return films1;
         }
