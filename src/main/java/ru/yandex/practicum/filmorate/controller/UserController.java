@@ -40,25 +40,25 @@ public class UserController {
 
     @PutMapping("/users/{id}/friends/{friendId}")
     public User addFriend(@PathVariable int id, @PathVariable int friendId) {
-        log.info("Получен put запрос users/"+ id +"/friends/" + friendId);
+        log.info("Получен put запрос users/" + id + "/friends/" + friendId);
         return userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/users/{id}/friends/{friendId}")
     public User deleteFriend(@PathVariable int id, @PathVariable int friendId) {
-        log.info("Получен delete запрос users/"+ id +"/friends/" + friendId);
+        log.info("Получен delete запрос users/" + id + "/friends/" + friendId);
         return userService.deleteFriend(id, friendId);
     }
 
     @GetMapping("/users/{id}/friends")
     public Collection<User> getFriends(@PathVariable int id) {
-        log.info("Получен get запрос users/"+ id +"/friends");
+        log.info("Получен get запрос users/" + id + "/friends");
         return userService.getFriends(id);
     }
 
     @GetMapping("/users/{id}/friends/common/{otherId}")
     public Collection<User> getMutualFriends(@PathVariable int id, @PathVariable int otherId) {
-        log.info("Получен get запрос users/"+ id +"/friends/common" + otherId);
+        log.info("Получен get запрос users/" + id + "/friends/common" + otherId);
         return userService.getMutualFriends(id, otherId);
     }
 
