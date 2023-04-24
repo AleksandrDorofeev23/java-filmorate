@@ -1,12 +1,13 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-
+import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.Collection;
 
 @Slf4j
@@ -14,6 +15,8 @@ import java.util.Collection;
 public class FilmController {
 
     private final FilmService filmService;
+
+    private LocalDate filmsBirthDay = LocalDate.of(1895, 12, 28);
 
     @Autowired
     public FilmController(FilmService filmService) {
@@ -29,12 +32,18 @@ public class FilmController {
     @PostMapping("/films")
     public Film createFilm(@Valid @RequestBody Film film) {
         log.info("Получен post запрос /films");
+        if (film.getReleaseDate().isBefore(filmsBirthDay)) {
+            throw new ValidationException("Неверная дата фильма");
+        }
         return filmService.createFilm(film);
     }
 
     @PutMapping("/films")
     public Film updateFilm(@Valid @RequestBody Film film) {
         log.info("Получен put запрос /films");
+        if (film.getReleaseDate().isBefore(filmsBirthDay)) {
+            throw new ValidationException("Неверная дата фильма");
+        }
         return filmService.updateFilm(film);
     }
 

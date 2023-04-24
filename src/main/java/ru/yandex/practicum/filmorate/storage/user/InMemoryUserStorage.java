@@ -3,10 +3,8 @@ package ru.yandex.practicum.filmorate.storage.user;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.DataException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,12 +17,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User createUser(User user) {
-        if (user.getLogin().contains(" ") || user.getLogin().isEmpty()) {
-            throw new ValidationException("Логин не может содержать пробелы или быть пустым");
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Дата рождения не может быть в будущем");
-        }
         if (user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
@@ -35,9 +27,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User updateUser(User user) {
-        if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Логин не может содержать пробелы");
-        }
         if (user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
