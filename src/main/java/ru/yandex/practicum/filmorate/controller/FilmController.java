@@ -23,7 +23,7 @@ public class FilmController {
     @GetMapping("/films")
     public Collection<Film> findAllFilms() {
         log.info("Получен get запрос /films");
-        return filmService.getFilmStorage().getAllFilms();
+        return filmService.findAllFilms();
     }
 
     @PostMapping("/films")

@@ -46,6 +46,10 @@ public class UserService {
         return updateUser(user);
     }
 
+    public Collection<User> findAllUsers() {
+        return userStorage.getAllUsers();
+    }
+
     public User deleteFriend(int id, int friendId) {
         User user = userStorage.getUserById(id);
         User friend = userStorage.getUserById(friendId);

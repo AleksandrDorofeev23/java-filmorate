@@ -35,6 +35,10 @@ public class FilmService {
         return film;
     }
 
+    public Collection<Film> findAllFilms() {
+        return filmStorage.getAllFilms();
+    }
+
     public Film deleteLike(int id, int userId) {
         if (userId < 0) {
             throw new DataException("ID пользователя должно быть положительным");

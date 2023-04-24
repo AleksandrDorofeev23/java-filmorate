@@ -23,7 +23,7 @@ public class UserController {
     @GetMapping("/users")
     public Collection<User> findAllUsers() {
         log.info("Получен get запрос /users");
-        return userService.getUserStorage().getAllUsers();
+        return userService.findAllUsers();
     }
 
     @PostMapping("/users")
