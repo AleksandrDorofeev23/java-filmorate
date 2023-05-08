@@ -45,8 +45,8 @@ public class FilmDbStorage implements FilmStorage {
                 genreDao.getGenreById(genre.getId());
             }
         }
-        int MpaId = film.getMpa().getId();
-        film.setMpa(mpaDao.getMpaById(MpaId));
+        int mpaId = film.getMpa().getId();
+        film.setMpa(mpaDao.getMpaById(mpaId));
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("films")
                 .usingGeneratedKeyColumns("film_id");
@@ -106,8 +106,8 @@ public class FilmDbStorage implements FilmStorage {
             Film film = new Film(
                     likes,
                     filmRows.getInt("film_id"),
-                    filmRows.getString("name").trim(),
-                    filmRows.getString("description").trim(),
+                    filmRows.getString("name"),
+                    filmRows.getString("description"),
                     LocalDate.parse(filmRows.getString("release_date"), formatter),
                     filmRows.getInt("duration"),
                     genres,
