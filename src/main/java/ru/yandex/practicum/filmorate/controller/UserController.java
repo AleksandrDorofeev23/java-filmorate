@@ -1,61 +1,69 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-
-import java.time.LocalDate;
+import ru.yandex.practicum.filmorate.service.UserService;
+import javax.validation.Valid;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestController
 public class UserController {
 
-    private Map<Integer, User> users = new HashMap();
+    private final UserService userService;
 
-    private int userId = 0;
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/users")
-    public Collection<User> findAll() {
+    public Collection<User> findAllUsers() {
         log.info("Получен get запрос /users");
-        return users.values();
+        return userService.findAllUsers();
     }
 
     @PostMapping("/users")
-    public User post(@Valid @RequestBody User user) {
+    public User createUser(@Valid @RequestBody User user) {
         log.info("Получен post запрос /users");
-        if (user.getLogin().contains(" ") || user.getLogin().isEmpty()) {
-            throw new ValidationException("Логин не может содержать пробелы или быть пустым");
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Дата рождения не может быть в будущем");
-        }
-        if (user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-        }
-        user.setId(++userId);
-        users.put(user.getId(), user);
-        return user;
+        return userService.createUser(user);
     }
 
     @PutMapping("/users")
-    public User put(@Valid @RequestBody User user) {
+    public User updateUser(@Valid @RequestBody User user) {
         log.info("Получен put запрос /users");
-        if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Логин не может содержать пробелы");
-        }
-        if (user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-        }
-        if (users.containsKey(user.getId())) {
-            users.put(user.getId(), user);
-        } else {
-            throw new ValidationException("Такого пользователя нет");
-        }
-        return user;
+        return userService.updateUser(user);
+    }
+
+    @PutMapping("/users/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable int id, @PathVariable int friendId) {
+        log.info("Получен put запрос users/" + id + "/friends/" + friendId);
+        return userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/users/{id}/friends/{friendId}")
+    public User deleteFriend(@PathVariable int id, @PathVariable int friendId) {
+        log.info("Получен delete запрос users/" + id + "/friends/" + friendId);
+        return userService.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("/users/{id}/friends")
+    public Collection<User> getFriends(@PathVariable int id) {
+        log.info("Получен get запрос users/" + id + "/friends");
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    public Collection<User> getMutualFriends(@PathVariable int id, @PathVariable int otherId) {
+        log.info("Получен get запрос users/" + id + "/friends/common" + otherId);
+        return userService.getMutualFriends(id, otherId);
+    }
+
+    @GetMapping("/users/{id}")
+    public User findUser(@PathVariable int id) {
+        log.info("Получен get запрос /users/" + id);
+        return userService.findUser(id);
     }
 }
