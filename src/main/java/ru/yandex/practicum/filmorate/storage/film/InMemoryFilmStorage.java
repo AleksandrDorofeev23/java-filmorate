@@ -45,4 +45,10 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.values();
     }
 
+    @Override
+    public Film deleteLike(int id, int userId) {
+        Film film = null;
+        return film;
+    }
+
 }

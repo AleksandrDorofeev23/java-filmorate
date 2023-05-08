@@ -3,19 +3,22 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.DataException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+
 import java.util.*;
 
 @Service
 @Getter
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
     }
 
     public Film createFilm(Film film) {
@@ -27,10 +30,12 @@ public class FilmService {
     }
 
     public Film likeFilm(int id, int userId) {
+        userStorage.getUserById(userId);
         Film film = filmStorage.getFilmById(id);
         Set<Integer> likes = film.getLikes();
         likes.add(userId);
         film.setLikes(likes);
+        updateFilm(film);
         return film;
     }
 
@@ -39,18 +44,13 @@ public class FilmService {
     }
 
     public Film deleteLike(int id, int userId) {
-        if (userId < 0) {
-            throw new DataException("ID пользователя должно быть положительным");
-        }
-        Film film = filmStorage.getFilmById(id);
-        Set<Integer> likes = film.getLikes();
-        likes.remove(userId);
-        film.setLikes(likes);
-        return film;
+        filmStorage.getFilmById(id);
+        userStorage.getUserById(userId);
+        return filmStorage.deleteLike(id, userId);
     }
 
     public List<Film> findPopularFilms(int count) {
-        Collection<Film> films =  filmStorage.getAllFilms();
+        Collection<Film> films = filmStorage.getAllFilms();
         List<Film> films1 = new ArrayList<>();
         films1.addAll(films);
         Comparator<Film> comparator = Comparator.comparingInt(o -> o.getLikes().size());
