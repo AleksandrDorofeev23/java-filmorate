@@ -47,4 +47,5 @@ public class MpaDaoImpl implements MpaDao {
             throw new DataException("Рейтинг не найден");
         }
     }
+
 }

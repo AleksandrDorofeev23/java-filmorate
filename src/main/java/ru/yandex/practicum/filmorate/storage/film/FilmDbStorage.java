@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.DataException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.Dao.GenreDao;
 import ru.yandex.practicum.filmorate.storage.Dao.MpaDao;
 
@@ -23,7 +24,7 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final GenreDao genreDao;
     private final MpaDao mpaDao;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaDao mpaDao, GenreDao genreDao) {
@@ -34,10 +35,10 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film createFilm(Film film) {
-        String sql = "SELECT * FROM films WHERE name=? AND release_date=?;";
-        SqlRowSet row = jdbcTemplate.queryForRowSet(sql, film.getName(), film.getReleaseDate());
+        String sql = "SELECT * FROM films WHERE name=? AND duration=?;";
+        SqlRowSet row = jdbcTemplate.queryForRowSet(sql, film.getName(), film.getDuration());
         if (row.next()) {
-            throw new DataException("Фильм существует");
+            throw new DataException("Фильм  уже существует");
         }
         List<Genre> genres = film.getGenres();
         if (genres != null) {
@@ -45,15 +46,17 @@ public class FilmDbStorage implements FilmStorage {
                 genreDao.getGenreById(genre.getId());
             }
         }
-        int mpaId = film.getMpa().getId();
-        film.setMpa(mpaDao.getMpaById(mpaId));
+        if (film.getMpa() != null) {
+            int mpaId = film.getMpa().getId();
+            film.setMpa(mpaDao.getMpaById(mpaId));
+        } else {
+            film.setMpa(new Mpa(0, null));
+        }
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("films")
                 .usingGeneratedKeyColumns("film_id");
-        film.setGenres(updateGenres(genres, film.getId()));
-        System.out.println(film.getGenres());
-
         film.setId(simpleJdbcInsert.executeAndReturnKey(film.getValue()).intValue());
+        film.setGenres(updateGenres(genres, film.getId()));
         return film;
 
     }
@@ -85,9 +88,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film getFilmById(int id) {
         String sql = "SELECT * FROM films WHERE film_id = ?";
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sql, id);
-
-        if (filmRows.next()) {
+        SqlRowSet rows = jdbcTemplate.queryForRowSet(sql, id);
+        if (rows.next()) {
             sql = "SELECT genre_id FROM film_genres WHERE film_id = ?";
             SqlRowSet genreRows = jdbcTemplate.queryForRowSet(sql, id);
             List<Genre> genres = new ArrayList<>();
@@ -95,7 +97,6 @@ public class FilmDbStorage implements FilmStorage {
                 int genreId = genreRows.getInt("genre_id");
                 genres.add(genreDao.getGenreById(genreId));
             }
-
             sql = "SELECT user_id FROM likes WHERE film_id = ?";
             SqlRowSet likesRows = jdbcTemplate.queryForRowSet(sql, id);
             Set<Integer> likes = new HashSet<>();
@@ -105,13 +106,13 @@ public class FilmDbStorage implements FilmStorage {
 
             Film film = new Film(
                     likes,
-                    filmRows.getInt("film_id"),
-                    filmRows.getString("name"),
-                    filmRows.getString("description"),
-                    LocalDate.parse(filmRows.getString("release_date"), formatter),
-                    filmRows.getInt("duration"),
+                    rows.getInt("film_id"),
+                    rows.getString("name"),
+                    rows.getString("description"),
+                    LocalDate.parse(rows.getString("release_date"), format),
+                    rows.getInt("duration"),
                     genres,
-                    mpaDao.getMpaById(Integer.parseInt(filmRows.getString("mpa_id"))));
+                    mpaDao.getMpaById(Integer.parseInt(rows.getString("mpa_id"))));
             return film;
         } else {
             throw new DataException("Фильм не найден.");
@@ -145,7 +146,6 @@ public class FilmDbStorage implements FilmStorage {
             }
         }
         return genresNew;
-
     }
 
     public Film deleteLike(int id, int userId) {

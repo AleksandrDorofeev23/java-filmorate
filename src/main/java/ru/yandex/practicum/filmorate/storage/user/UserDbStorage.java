@@ -18,8 +18,9 @@ import java.util.Set;
 @Repository
 @Primary
 public class UserDbStorage implements UserStorage {
+
     private final JdbcTemplate jdbcTemplate;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -28,7 +29,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User createUser(User user) {
-        String sql = "SELECT * FROM users WHERE  (login=?);";
+        String sql = "SELECT * FROM users WHERE login=?;";
         SqlRowSet row = jdbcTemplate.queryForRowSet(sql, user.getLogin());
         if (row.next()) {
             throw new DataException("Пользователь уже существует");
@@ -98,10 +99,10 @@ public class UserDbStorage implements UserStorage {
             User user = new User(
                     friends,
                     userRows.getInt("user_id"),
-                    userRows.getString("email").trim(),
-                    userRows.getString("login").trim(),
-                    userRows.getString("name").trim(),
-                    LocalDate.parse(userRows.getString("birthday"), formatter)
+                    userRows.getString("email"),
+                    userRows.getString("login"),
+                    userRows.getString("name"),
+                    LocalDate.parse(userRows.getString("birthday"), format)
             );
             return user;
         } else {
@@ -118,7 +119,7 @@ public class UserDbStorage implements UserStorage {
         if (rows.next()) {
             boolean isStatusConfirm = rows.getBoolean("status");
             if (isStatusConfirm) {
-                throw new DataException("Дружба с уже существует.");
+                throw new DataException("Дружба уже существует.");
             } else {
                 throw new DataException("Дружба была отправлена ранее и еще не подтверждена");
             }
