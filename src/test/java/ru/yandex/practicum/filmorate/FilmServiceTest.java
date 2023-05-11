@@ -105,7 +105,7 @@ class FilmServiceTest {
         film.setName("Film4");
         film = filmService.createFilm(film);
         User testUser = User.builder()
-                .login("user2")
+                .login("user22")
                 .email("user@yandex.ru")
                 .birthday(LocalDate.now())
                 .build();
@@ -143,13 +143,13 @@ class FilmServiceTest {
     void getPopularFilms() {
         film = filmService.createFilm(film);
         User testUser = User.builder()
-                .login("user")
+                .login("user1")
                 .email("user@yandex.ru")
                 .birthday(LocalDate.now())
                 .build();
         testUser = userService.createUser(testUser);
         filmService.likeFilm(film.getId(), testUser.getId());
-        film.setName("Film24");
+        film.setName("Film244");
         filmService.createFilm(film);
         List<Film> films = filmService.findPopularFilms(2);
         assertTrue(films.size() == 2);
