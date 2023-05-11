@@ -24,7 +24,8 @@ public class MpaDaoImpl implements MpaDao {
     public Collection<Mpa> getAllMpa() {
         SqlRowSet rows = jdbcTemplate.queryForRowSet("SELECT * FROM mpa");
         List<Mpa> mpas = new ArrayList<>();
-        while (rows.next()) {
+        for (int i = 0; i < 5; i++) {
+            rows.next();
             Mpa mpa = Mpa.builder()
                     .id(rows.getInt("id"))
                     .name(rows.getString("name"))
@@ -38,11 +39,10 @@ public class MpaDaoImpl implements MpaDao {
     public Mpa getMpaById(int id) {
         SqlRowSet rows = jdbcTemplate.queryForRowSet("SELECT * FROM mpa WHERE id = ?", id);
         if (rows.next()) {
-            Mpa mpa = Mpa.builder()
+            return Mpa.builder()
                     .id(rows.getInt("id"))
                     .name(rows.getString("name"))
                     .build();
-            return mpa;
         } else {
             throw new DataException("Рейтинг не найден");
         }

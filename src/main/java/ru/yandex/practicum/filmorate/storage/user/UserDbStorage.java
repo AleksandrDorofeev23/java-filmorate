@@ -10,10 +10,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Repository
 @Primary
@@ -40,7 +37,7 @@ public class UserDbStorage implements UserStorage {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
                 .usingGeneratedKeyColumns("user_id");
-        user.setId(simpleJdbcInsert.executeAndReturnKey(user.toValue()).intValue());
+        user.setId(simpleJdbcInsert.executeAndReturnKey(toValue(user)).intValue());
         return user;
     }
 
@@ -69,20 +66,36 @@ public class UserDbStorage implements UserStorage {
         if (friends == null || friends.isEmpty()) {
             return friends;
         }
+        String repeat = "";
         for (Integer friend : friends) {
-            sql = "INSERT INTO friends (user_id, friend_id) VALUES (?, ?);";
-            jdbcTemplate.update(sql, id, friend);
+            repeat += "(" + id + ", " + friend + "),";
         }
+        if (repeat.endsWith(",")) {
+            repeat = repeat.substring(0, repeat.length() - 1);
+        }
+        sql = "INSERT INTO friends (user_id, friend_id) VALUES" + repeat + ";";
+        jdbcTemplate.update(sql);
         return friends;
     }
 
     @Override
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        SqlRowSet filmsRows = jdbcTemplate.queryForRowSet("SELECT user_id FROM users");
-        while (filmsRows.next()) {
-            users.add(getUserById(filmsRows.getInt("user_id")));
-        }
+        String sql = "SELECT * FROM users " +
+                "LEFT OUTER JOIN friends ON friends.friend_id = users.user_id ";
+        jdbcTemplate.query(sql, rows -> {
+            Set<Integer> friends = new HashSet<>();
+            if (!rows.wasNull()) {
+                friends.add(rows.getInt("friend_id"));
+            }
+            users.add(new User(
+                    friends,
+                    rows.getInt("user_id"),
+                    rows.getString("email"),
+                    rows.getString("login"),
+                    rows.getString("name"),
+                    LocalDate.parse(rows.getString("birthday"), format)));
+        });
         return users;
     }
 
@@ -144,6 +157,15 @@ public class UserDbStorage implements UserStorage {
         sql = "UPDATE friends SET status = false WHERE user_id = ? AND friend_id = ?;";
         jdbcTemplate.update(sql, friendId, id);
         return getUserById(id);
+    }
+
+    public Map<String, Object> toValue(User user) {
+        Map<String, Object> values = new HashMap<>();
+        values.put("email", user.getEmail());
+        values.put("login", user.getLogin());
+        values.put("name", user.getName());
+        values.put("birthday", user.getBirthday());
+        return values;
     }
 
 }

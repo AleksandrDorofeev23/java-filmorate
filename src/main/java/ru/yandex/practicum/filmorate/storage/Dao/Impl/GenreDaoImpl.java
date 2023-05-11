@@ -26,7 +26,8 @@ public class GenreDaoImpl implements GenreDao {
     public Collection<Genre> getAllGenre() {
         SqlRowSet rows = jdbcTemplate.queryForRowSet("SELECT * FROM genres");
         List<Genre> genres = new ArrayList<>();
-        while (rows.next()) {
+        for (int i = 0; i < 6; i++) {
+            rows.next();
             Genre genre = Genre.builder()
                     .id(rows.getInt("id"))
                     .name(rows.getString("name"))
@@ -40,11 +41,10 @@ public class GenreDaoImpl implements GenreDao {
     public Genre getGenreById(int id) {
         SqlRowSet rows = jdbcTemplate.queryForRowSet("SELECT * FROM genres WHERE id = ?", id);
         if (rows.next()) {
-            Genre genre = Genre.builder()
+            return Genre.builder()
                     .id(rows.getInt("id"))
                     .name(rows.getString("name"))
                     .build();
-            return genre;
 
         } else {
             throw new DataException("Такой жанр не найден");

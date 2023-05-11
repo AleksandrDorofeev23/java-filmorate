@@ -26,15 +26,6 @@ public class Film {
     private List<Genre> genres;
     private Mpa mpa;
 
-    public Map<String, Object> getValue() {
-        Map<String, Object> values = new HashMap<>();
-        values.put("name", name);
-        values.put("description", description);
-        values.put("release_date", releaseDate);
-        values.put("duration", duration);
-        values.put("mpa_id", mpa.getId());
-        return values;
-    }
 }
 
 

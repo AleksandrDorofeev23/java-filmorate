@@ -46,7 +46,7 @@
 			<version>2.1.210</version>
 			<scope>runtime</scope>
 		</dependency>
-    </dependencies>
+	</dependencies>
 
 	<build>
 		<plugins>

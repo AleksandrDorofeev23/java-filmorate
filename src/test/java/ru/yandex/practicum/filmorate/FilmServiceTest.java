@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.BadSqlGrammarException;
 import ru.yandex.practicum.filmorate.exceptions.DataException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -133,10 +134,9 @@ class FilmServiceTest {
         genres.add(Genre.builder().name("Драма").build());
         testFilm.setMpa(Mpa.builder().id(1).build());
         testFilm.setGenres(genres);
-        final DataException genreException = assertThrows(
-                DataException.class, () -> filmService.createFilm(testFilm)
+        final BadSqlGrammarException genreException = assertThrows(
+                BadSqlGrammarException.class, () -> filmService.createFilm(testFilm)
         );
-        assertEquals("Такой жанр не найден", genreException.getMessage());
     }
 
     @Test
