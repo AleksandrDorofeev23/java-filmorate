@@ -149,7 +149,7 @@ class FilmServiceTest {
                 .build();
         testUser = userService.createUser(testUser);
         filmService.likeFilm(film.getId(), testUser.getId());
-        film.setName("Film244");
+        film.setName("Film222");
         filmService.createFilm(film);
         List<Film> films = filmService.findPopularFilms(2);
         assertTrue(films.size() == 2);
