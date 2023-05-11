@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.DataException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -33,16 +34,7 @@ public class UserService {
         if (friendId < 0) {
             throw new DataException("ID друга должно быть положительным");
         }
-        User user = userStorage.getUserById(id);
-        User friend = userStorage.getUserById(friendId);
-        Set<Integer> friends = user.getFriends();
-        friends.add(friendId);
-        user.setFriends(friends);
-        friends = friend.getFriends();
-        friends.add(id);
-        friend.setFriends(friends);
-        updateUser(friend);
-        return updateUser(user);
+        return userStorage.addFriend(id, friendId);
     }
 
     public Collection<User> findAllUsers() {
@@ -50,16 +42,7 @@ public class UserService {
     }
 
     public User deleteFriend(int id, int friendId) {
-        User user = userStorage.getUserById(id);
-        User friend = userStorage.getUserById(friendId);
-        Set<Integer> friends = user.getFriends();
-        friends.remove(friendId);
-        user.setFriends(friends);
-        friends = friend.getFriends();
-        friends.remove(id);
-        friend.setFriends(friends);
-        updateUser(friend);
-        return updateUser(user);
+        return userStorage.deleteFriend(id, friendId);
     }
 
     public Collection<User> getFriends(int id) {

@@ -14,4 +14,5 @@ public interface FilmStorage {
 
     Collection<Film> getAllFilms();
 
+    Film deleteLike(int id, int userId);
 }
